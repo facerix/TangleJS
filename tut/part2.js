@@ -11,6 +11,7 @@ require(
             pvw    = atto.byId('preview'),
             ndNull = document.createTextNode(' '),
             btnPP  = atto.byId('btnPlayPause'),
+            btnStartPreloader = atto.byId('btnStartPreloader'),
             i      = 0,
             _currAudio;
         window.cache = cache;
