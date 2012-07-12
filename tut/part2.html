@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Let's Make a Canvas Library: Asset Management</title>
+    <style>
+        #prg { width: 240px; }
+        html, body { padding: 0; margin: 0; }
+        .main {
+            width: 800px;
+            margin: 0 auto;
+            background: #F7F7F7;
+            padding: 10px 20px;
+            border-style: dotted;
+            border-width: 0 2px;
+            border-color: #CCC;
+        }
+        .main section {
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 15px;
+            max-width: 260px;
+        }
+        section select { vertical-align: top; }
+    </style>
+  </head>
+  <body>
+    <article class="main">
+        <h1>Let's Make a Canvas Library, Part 2: Asset Management</h1>
+
+        <p>This is about as barebones a demo as I can make while still getting
+           the point across about what the Preloader class is for.</p>
+        <ol>
+           <li>The listbox on the left below includes a handful of hard-coded
+               filenames referencing potential game assets on my web server.
+               Highlight one or more of these files, then click Preload to kick off
+               the preloading process with that subset of files.</li>
+           <li>The progress bar and status text in the center column will
+               indicate overall loading progress as each file is pulled into memory.</li>
+           <li>Once loaded, these assets can then be previewed from the
+               drop-down list on the right.</p>
+        </ol>
+
+        <section>
+            <h4>Assets to load:</h4>
+            <select size="10" multiple="multiple" id="assetUrls">
+                <option value='title.png'>title.png</option>
+                <option value='font.png'>font.png</option>
+                <option value='wait.gif'>wait.gif</option>
+                <option value='DST-Raiser.mp3'>DST-Raiser.mp3</option>
+                <option value='DST-Raiser.ogg'>DST-Raiser.ogg</option>
+            </select>
+            <button id="btnStartPreloader">Preload</button>
+        </section>
+
+        <section>
+            <h4>Loading progress:</h4>
+            <div id="prg"></div>
+            <span id="status"></span>
+        </section>
+
+        <section>
+            <h4>In cache:</h4>
+            <select id="cachedAssets">
+                <option value="">(none)</option>
+            </select>
+            <span>
+                <button id='btnPlayPause' disabled='disabled'>Pause</button>
+            </span>
+            <div id="preview">-//-</div>
+        </section>
+    </article>
+
+    <script src="../../require.js" data-main="part2"></script>
+  </body>
+</html>
