@@ -37,7 +37,16 @@
            <li>The progress bar and status text in the center column will
                indicate overall loading progress as each file is pulled into memory.</li>
            <li>Once loaded, these assets can then be previewed from the
-               drop-down list on the right.</p>
+               drop-down list on the right.</li>
+           <li>Preloader will work in all modern browsers, and even has limited
+               support for Internet Explorer 8 (images work, but not audio files)</li>
+           <li>Support for audio files will depend on your browser and operating
+               system. On my Windows 7 machine, Google Chrome (v20) can load and play
+               back both the mp3 and ogg audio files, but Firefox (v13) only supports
+               the ogg file, and IE9 only supports the mp3. We'll revisit this in a
+               later tutorial to find a better cross-browser solution, so that your code
+               can just specify a single named audio asset and let the library
+               figure out the right file format to load.</li>
         </ol>
 
         <section>
