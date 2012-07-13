@@ -65,31 +65,31 @@ define(
             }
 
             function _addAsset(name, src) {
-                var type = _assetTypeFromName(src);
-
                 if (name in _assets) {
                     _events.error.dispatch({name:name, details:"Asset '"+name+"' is already in the cache"});
                     return;
                 } else {
 
-                    if (type === _types.IMAGE) {
-                        // image: this is by far the simple case
-                        _assets[name] = new Image();
-                        //_assets[name].onload = _createLoadCallback(name);
-                        atto.addEvent(_assets[name], 'load', _createLoadCallback(name), false);
-                        //_assets[name].onerror = _createErrorCallback(name);
-                        atto.addEvent(_assets[name], 'error', _createErrorCallback(name), false);
+                    switch (_assetTypeFromName(src)) {
+                        case _types.IMAGE:
+                            // image: this is by far the simple case
+                            _assets[name] = new Image();
+                            atto.addEvent(_assets[name], 'load', _createLoadCallback(name), false);
+                            atto.addEvent(_assets[name], 'error', _createErrorCallback(name), false);
+                            break;
 
-                    } else if (type === _types.AUDIO) {
-                        // audio; this will take a little more magic, due to browser codec issues
-                        _assets[name] = new Audio();
-                        atto.addEvent(_assets[name], 'canplaythrough', _createLoadCallback(name), false);
-                        atto.addEvent(_assets[name], 'error', _createErrorCallback(name), false);
+                        case _types.AUDIO:
+                            // audio; this will take a little more magic, due to browser codec issues
+                            _assets[name] = new Audio();
+                            atto.addEvent(_assets[name], 'canplaythrough', _createLoadCallback(name), false);
+                            atto.addEvent(_assets[name], 'error', _createErrorCallback(name), false);
+                            break;
 
-                    } else {
-                        // unsupported asset type
-                        _events.error.dispatch({name:name, details:"Asset type '"+type+"' not supported."});
-                        return false;
+                        default:
+                            // unsupported asset type
+                            _events.error.dispatch({name:name, details:"Asset type '"+type+"' not supported."});
+                            return false;
+                            break;
                     }
 
                     _loadStatus[name] = false;
