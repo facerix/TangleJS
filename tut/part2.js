@@ -4,21 +4,32 @@ require.config({
 require(
     ["atto/core", "atto/progressBar", "tangle/AssetCache"],
     function(atto, ProgressBar, AssetCache) {
-        var opts   = atto.byId("assetUrls").options,
-            cache  = new AssetCache(),
-            prg    = new ProgressBar(atto.byId('prg'), {min:0, max: opts.length}),
-            tgtSel = atto.byId('cachedAssets'),
-            pvw    = atto.byId('preview'),
-            ndNull = document.createTextNode(' '),
-            btnPP  = atto.byId('btnPlayPause'),
-            btnStartPreloader = atto.byId('btnStartPreloader'),
-            i      = 0,
+        var opts      = atto.byId("assetUrls").options,
+            cache     = new AssetCache(),
+            prg       = new ProgressBar(atto.byId('prg'), {min:0, max: opts.length}),
+            tgtSel    = atto.byId('cachedAssets'),
+            pvw       = atto.byId('preview'),
+            ndNull    = document.createTextNode(' '),
+            btnPP     = atto.byId('btnPlayPause'),
+            txtStatus = atto.byId('status'),
             _currAudio;
-        window.cache = cache;
-        /*
-        window.atto = atto;
-        window.prg = prg;
-        */
+
+        // helper functions
+
+        function _log(msg) {
+            txtStatus.appendChild(document.createTextNode(msg));
+            txtStatus.appendChild(document.createElement('br'));
+        }
+        function _pauseAudio() {
+            if (_currAudio) _currAudio.pause();
+            btnPP.textContent = "Play";
+        }
+        function _playAudio() {
+            if (_currAudio) _currAudio.play();
+            btnPP.textContent = "Pause";
+        }
+
+        // DOM event handlers
 
         atto.addEvent(btnPP, 'click', function() {
             if (this.textContent == 'Play') {
@@ -30,18 +41,9 @@ require(
             }
         }, true);
 
-        function _pauseAudio() {
-            if (_currAudio) _currAudio.pause();
-            btnPP.textContent = "Play";
-        }
-        function _playAudio() {
-            if (_currAudio) _currAudio.play();
-            btnPP.textContent = "Pause";
-        }
-
-        atto.addEvent(btnStartPreloader, 'click', function() {
-            var count = 0;
-            for (var i=0; i<opts.length; i++) {
+        atto.addEvent(atto.byId('btnStartPreloader'), 'click', function() {
+            var count = 0, i;
+            for (i=0; i<opts.length; i++) {
                 if (opts[i].selected) {
                     cache.addAsset( opts[i].value, "assets/" + opts[i].value );
                     prg.setMax(++count);
@@ -90,9 +92,8 @@ require(
             }
         }, true);
 
-        function _log(msg) {
-            atto.byId('status').innerHTML += msg + '<br/>';
-        }
+
+        // AssetCache event callbacks
 
         cache.events.error.watch(function(data) {
             _log(data.details);

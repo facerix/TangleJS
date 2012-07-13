@@ -3,7 +3,6 @@
   <head>
     <title>Let's Make a Canvas Library: Asset Management</title>
     <style>
-        #prg { width: 240px; }
         html, body { padding: 0; margin: 0; }
         .main {
             width: 800px;
@@ -20,6 +19,7 @@
             margin-right: 15px;
             max-width: 260px;
         }
+        #prg { width: 240px; }
         section select { vertical-align: top; }
     </style>
   </head>
@@ -28,26 +28,22 @@
         <h1>Let's Make a Canvas Library, Part 2: Asset Management</h1>
 
         <p>This is about as barebones a demo as I can make while still getting
-           the point across about what the Preloader class is for.</p>
+           the point across about what the AssetCache class is for.</p>
         <ol>
+           <li>This page references the RequireJS AMD loader, which pulls in part2.js,
+               which in turn loads AssetCache.js and a few other modules as
+               dependencies to make the interactions on this page a little simpler.</li>
            <li>The listbox on the left below includes a handful of hard-coded
                filenames referencing potential game assets on my web server.
                Highlight one or more of these files, then click Preload to kick off
                the preloading process with that subset of files.</li>
-           <li>The progress bar and status text in the center column will
-               indicate overall loading progress as each file is pulled into memory.</li>
-           <li>Once loaded, these assets can then be previewed from the
+           <li>The progress bar &amp; status text in the center will show preload
+               progress as each file is grabbed by the AssetCache.</li>
+           <li>Once loaded, these assets can then be immediately accessed from the
                drop-down list on the right.</li>
-           <li>Preloader will work in all modern browsers, and even has limited
-               support for Internet Explorer 8 (images work, but not audio files)</li>
-           <li>Support for audio files will depend on your browser and operating
-               system. On my Windows 7 machine, Google Chrome (v20) can load and play
-               back both the mp3 and ogg audio files, but Firefox (v13) only supports
-               the ogg file, and IE9 only supports the mp3. We'll revisit this in a
-               later tutorial to find a better cross-browser solution, so that your code
-               can just specify a single named audio asset and let the library
-               figure out the right file format to load.</li>
         </ol>
+
+        <hr/>
 
         <section>
             <h4>Assets to load:</h4>
@@ -58,7 +54,9 @@
                 <option value='DST-Raiser.mp3'>DST-Raiser.mp3</option>
                 <option value='DST-Raiser.ogg'>DST-Raiser.ogg</option>
             </select>
-            <button id="btnStartPreloader">Preload</button>
+            <button id="btnStartPreloader">Preload &rArr;</button>
+            <p>mp3 courtesy of <a href="http://www.nosoapradio.us/">NoSoapRadio</a>;<br/>
+               conversion to Ogg Vorbis by me.</p>
         </section>
 
         <section>
@@ -77,6 +75,23 @@
             </span>
             <div id="preview">-//-</div>
         </section>
+
+        <hr/>
+
+        <footer>
+           <p>AssetCache works in all modern browsers, and even has limited
+               support for Internet Explorer 8 (images work, but not audio).</p>
+           <p>Support for audio files will depend on your browser and operating
+               system. On my Windows 7 machine, Google Chrome (v20) can load and play
+               back both the mp3 and ogg audio files, but Firefox (v13) only supports
+               the ogg file, and IE9 only supports the mp3. I suspect mobile browsers
+               will be even more spastic.
+           <p>We'll revisit this crazy audio situation in a later tutorial to find a
+               better cross-browser solution. This is an ideal use case for a library:
+               it would be so much nicer if your app code could just specify a single,
+               named audio asset, and let the library figure out the right file format
+               to load based on browser and platform capabilities.</p>
+        </footer>
     </article>
 
     <script src="../../require.js" data-main="part2"></script>
