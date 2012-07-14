@@ -5,7 +5,6 @@
 //@license: Free to use & modify, but please keep this credits message
 /***************************/
 
-
 define(
     ['atto/core','atto/event'],
     function(atto,CustomEvent) {
@@ -22,25 +21,14 @@ define(
                     AUDIO: 2
                 },
                 _extension_to_type = {
-                    png: 1,
-                    bmp: 1,
-                    gif: 1,
-                    jpg: 1,
-                    jpeg: 1,
-                    wav: 2,
-                    webm: 2,
-                    ogg: 2,
-                    mp3: 2,
-                    aac: 2
+                    png: 1, bmp: 1,  gif: 1, jpg: 1, jpeg: 1,
+                    wav: 2, webm: 2, ogg: 2, mp3: 2, aac: 2
                 };
 
-            function _assetTypeFromName(assetName) {
-                var retVal;
-                if (assetName.indexOf('.') > -1) {
-                    // lastIndexOf is okay because all canvas-aware browsers have it
-                    var ext = assetName.substr(assetName.lastIndexOf('.')+1);
+            function _assetTypeFromFilename(fileName) {
+                var segs = fileName.split('.'),
+                    ext = segs[segs.length-1],
                     retVal = _extension_to_type[ext.toLowerCase()];
-                }
 
                 // default to image if we couldn't figure it out
                 return retVal || _types.IMAGE;
@@ -69,8 +57,8 @@ define(
                     _events.error.dispatch({name:name, details:"Asset '"+name+"' is already in the cache"});
                     return;
                 } else {
-
-                    switch (_assetTypeFromName(src)) {
+                    var assetType = _assetTypeFromFilename(src);
+                    switch (assetType) {
                         case _types.IMAGE:
                             // image: this is by far the simple case
                             _assets[name] = new Image();
@@ -87,7 +75,7 @@ define(
 
                         default:
                             // unsupported asset type
-                            _events.error.dispatch({name:name, details:"Asset type '"+type+"' not supported."});
+                            _events.error.dispatch({name:name, details:"Asset type '"+assetType+"' not supported."});
                             return false;
                             break;
                     }
