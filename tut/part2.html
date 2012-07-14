@@ -28,7 +28,10 @@
         <h1>Let's Make a Canvas Library, Part 2: Asset Management</h1>
 
         <p>This is about as barebones a demo as I can make while still getting
-           the point across about what the AssetCache class is for.</p>
+           the point across about what the AssetCache class is for. If you're
+           interested in more details about what's going on here, the related blog
+           post is
+           <a href="http://www.buyog.com/code/post/lets-make-canvas-library-assets">here</a>.</p>
         <ol>
            <li>This page references the RequireJS AMD loader, which pulls in part2.js,
                which in turn loads AssetCache.js and a few other modules as
@@ -41,6 +44,13 @@
                progress as each file is grabbed by the AssetCache.</li>
            <li>Once loaded, these assets can then be immediately accessed from the
                drop-down list on the right.</li>
+           <li>You can reuse the same AssetCache repeatedly: that is, preload the
+               assets you need for the title screen, show the title, then when the
+               user triggers the next app state, add the next batch of assets to be
+               preloaded. You can test this by selecting just a few of the files and
+               clicking Preload, watching the events that get logged in the status
+               section, then select a few more assets and click Preload again to see
+               that the "All assets loaded" event fires a second time.</li>
         </ol>
 
         <hr/>
@@ -54,9 +64,10 @@
                 <option value='DST-Raiser.mp3'>DST-Raiser.mp3</option>
                 <option value='DST-Raiser.ogg'>DST-Raiser.ogg</option>
             </select>
+            <br/>
             <button id="btnStartPreloader">Preload &rArr;</button>
-            <p>mp3 courtesy of <a href="http://www.nosoapradio.us/">NoSoapRadio</a>;<br/>
-               conversion to Ogg Vorbis by me.</p>
+            <p>mp3 from <a href="http://www.nosoapradio.us/">NoSoapRadio</a>;<br/>
+               converted to Ogg Vorbis<br/> via <a href="http://media.io/">media.io</a>.</p>
         </section>
 
         <section>
