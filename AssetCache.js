@@ -46,7 +46,7 @@ define(
             }
 
             function _createErrorCallback(assetName) {
-                return function(e) {
+                return function() {
                     _loadStatus[assetName] = false;
                     _events.error.dispatch({name:assetName, details:"Asset '"+assetName+"' could not be loaded."});
                 }
