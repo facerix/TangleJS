@@ -14,7 +14,7 @@ define(
                 _events = {
                     error:  new CustomEvent('tangle.assetCache.error'),
                     ready:  new CustomEvent('tangle.assetCache.ready'),
-                    loaded: new CustomEvent('tangle.assetCache.loaded'),
+                    loaded: new CustomEvent('tangle.assetCache.loaded')
                 },
                 _types = {
                     IMAGE: 1,
