@@ -7,14 +7,14 @@
 
 define(
     ['atto/core','atto/event'],
-    function(atto,CustomEvent) {
+    function(atto, AttoEvent) {
         function constructor(args) {
             var _assets     = {},
                 _loadStatus = {},
                 _events = {
-                    error:  new CustomEvent('tangle.assetCache.error'),
-                    ready:  new CustomEvent('tangle.assetCache.ready'),
-                    loaded: new CustomEvent('tangle.assetCache.loaded')
+                    error:  new AttoEvent('tangle.assetCache.error'),
+                    ready:  new AttoEvent('tangle.assetCache.ready'),
+                    loaded: new AttoEvent('tangle.assetCache.loaded')
                 },
                 _types = {
                     IMAGE: 1,
