@@ -123,6 +123,19 @@ define(
                 return retVal;
             }
 
+            function _completion() {
+                var total=0, loadCount=0, loaded=false;;
+                for (var id in _assets) {
+                    total++;
+                    if (id in _loadStatus) {
+                        loaded = _loadStatus[id];
+                        if (loaded) loadCount++;
+                    }
+                }
+
+                return (total) ? (loadCount / total) : 0;
+            }
+
             return {
                 TYPES        : _types,
                 addAsset     : _addAsset,
@@ -130,6 +143,7 @@ define(
                 getAsset     : _getAsset,
                 getAssetType : _getAssetType,
                 ready        : _ready,
+                percentage   : _completion,
                 events       : _events
             } // end of public interface
         } // end of constructor
