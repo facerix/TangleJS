@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8"/>
-    <title>Let's Make a Canvas Library: State Machines</title>
+    <title>Let's Make a Canvas Library: Game Loop</title>
 
     <!--[if lt IE 9]>
     <script src="/js/html5shiv.js"></script>
@@ -11,7 +11,7 @@
     <style>
         html, body { padding: 0; margin: 0; }
         .main {
-            width: 800px;
+            max-width: 800px;
             margin: 0 auto;
             background: #F7F7F7;
             padding: 10px 20px;
@@ -19,88 +19,65 @@
             border-width: 0 2px;
             border-color: #CCC;
         }
-        .main section {
-            display: inline-block;
-            vertical-align: top;
-            margin-right: 15px;
-        }
-        canvas {
-            width: 320px;
-            height: 240px;
+        #game {
             border: 1px solid #CCC;
+            color: #ccc;
+            background-color: #222;
+            padding: 0;
+            overflow: hidden;
+            width: 320px; height: 240px;
         }
-        canvas p { text-align: center; }
+        #controls { width: 320px; }
+        #fps { float: right; }
+        #fps:after { content: " FPS"; }
+        #status {
+            display: inline-block;
+            position: relative;
+        }
+        table td { min-width: 6em; vertical-align: top; }
+        #status * { display: block; margin: 0 auto; }
     </style>
   </head>
   <body>
     <article class="main">
-        <h1>Let's Make a Canvas Library, Part 3: State Machines</h1>
+        <h1>Let's Make a Canvas Library, Part 3: Game Loops</h1>
 
-        <p>This page demonstrates the functionality of a StateMachine module, useful for maintaining
-           a collection of states and transitions (i.e. a
-           <a href="https://en.wikipedia.org/wiki/Finite-state_machine">Finite-state machine</a>).
-           It can be used to maintain overall game or application state, the state of individual game
-           elements (like Player or Enemy classes), and so on. More details can be found in
-           the <a href="http://www.buyog.com/code/post/lets-make-canvas-library-states">related blog post</a>.</p>
+        <p>This page demonstrates a super-basic implementation of a
+           <a href="https://en.wikipedia.org/wiki/game_loop">game loop</a>.
+           More details can be found in
+           the <a href="http://www.buyog.com/code/post/lets-make-canvas-library-game-loop">related blog post</a>.</p>
 
         <p>This page references the RequireJS AMD loader, which pulls in part3.js,
-           which in turn loads StateMachine.js and sets up a few basic states for us:
-           <ol start='0'>
-              <li>Loading &mdash; waits for AssetCache.ready()</li>
-              <li>Title &mdash; waits for mouse click</li>
-              <li>Play start</li>
-           </ol>
+           which in turn loads tangle/core.js, a
+           <a href="http://en.wikipedia.org/wiki/Singleton_pattern">singleton</a> object
+           that provides a few useful abstractions to make game loop management easier:
+           <table cellspacing="5">
+              <tr><td>main() loop</td>
+                  <td>simply pass your main game loop function to main(),
+                  and all the details of constructing and managing the game loop
+                  (including play/pause functionality) are automatically handled.</td>
+              </tr>
+              <tr><td>FPS callback</td>
+                  <td>pass a function as the second parameter to the main() function,
+                  and it'll get called once per second with an updated frames-per-second
+                  calculation.</td>
+              </tr>
+           </table>
         </p>
 
         <hr/>
 
+        <section id="controls">
+            <button id="onoff">Pause</button>
+            <span id="fps">&mdash;</span>
+        </section>
         <section id="gameContainer">
           <div id="game">
-            <canvas id="mainCanvas" width='320' height='240'>
-              <p>It looks like your browser can't speak "canvas".</p>
-              <p>This part of the demo's not gonna work for you.</p>
-              <p>Sorry about that.</p>
-            </canvas>
+            <div id="status"></div>
           </div>
-        </section>
-        <section id="info">
-            <strong>Current game state:</strong>
-            <p id="status"></p>
         </section>
     </article>
 
-    <script>
-        // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-        // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-
-        // requestAnimationFrame polyfill by Erik Möller
-        // fixes from Paul Irish and Tino Zijdel
-
-        (function() {
-            var lastTime = 0;
-            var vendors = ['ms', 'moz', 'webkit', 'o'];
-            for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-                window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-                window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
-                                           || window[vendors[x]+'CancelRequestAnimationFrame'];
-            }
-
-            if (!window.requestAnimationFrame)
-                window.requestAnimationFrame = function(callback, element) {
-                    var currTime = new Date().getTime();
-                    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-                    var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-                      timeToCall);
-                    lastTime = currTime + timeToCall;
-                    return id;
-                };
-
-            if (!window.cancelAnimationFrame)
-                window.cancelAnimationFrame = function(id) {
-                    clearTimeout(id);
-                };
-        }());
-    </script>
     <script src="../../require.js" data-main="part3"></script>
   </body>
 </html>
