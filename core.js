@@ -7,7 +7,7 @@
 
 define([], function() {
     // requestAnimationFrame / cancelAnimationFrame implementation;
-    // adapted from the polyfill by Erik Möller, fixes from Paul Irish and Tino Zijdel
+    // adapted from the polyfill by Erik Mï¿½ller, fixes from Paul Irish and Tino Zijdel
     // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
     // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
     var lastTime = 0;
@@ -35,8 +35,9 @@ define([], function() {
 
     // end of requestAnimationFrame/cancelAnimationFrame polyfill
 
-    var _mainLoop,
-        _mainLoopId,
+    var _updateLoop,
+        _renderLoop,
+        _renderLoopId,
         _paused = true;
 
     var elapsedMs = 0,
@@ -66,23 +67,34 @@ define([], function() {
     }
 
     var tangleCore = {
+        init: function game_init(updateFunc, renderFunc, fpsFunc) {
+            _paused = true;
 
-        main: function mainLoop(func, fpsCallback) {
-            if (func && typeof func == "function") {
-                _paused = false;
-                _mainLoop = function() {
-                    func();
-                    _checkFPS();
-                    _mainLoopId = requestAnimationFrame(arguments.callee);
-                };
-                _mainLoopId = requestAnimationFrame(_mainLoop);
-            } else {
-                _paused = true;
-                _mainLoop = null;
-                console.error("[Tangle.main] >> Provided argument is null or not a function.");
+            if (fpsFunc) {
+                if (typeof fpsFunc == "function") {
+                    _fpsCallback = fpsFunc;
+                } else {
+                    console.error("[Tangle.main] >> Provided argument fpsFunc is not a function.");
+                }
             }
 
-            if (fpsCallback && typeof fpsCallback == "function") _fpsCallback = fpsCallback;
+            if (updateFunc && typeof updateFunc == "function") {
+                _updateLoop = updateFunc;
+            } else {
+                _updateLoop = null;
+                console.error("[Tangle.main] >> Provided argument updateFunc is null or not a function.");
+            }
+
+            if (renderFunc && typeof renderFunc == "function") {
+                _renderLoop = function() {
+                    _checkFPS();  // calls fpsFunc with the latest calculated FPS
+                    renderFunc();
+                    requestAnimationFrame(arguments.callee);
+                }
+            } else {
+                _renderLoop = null;
+                console.error("[Tangle.main] >> Provided argument renderFunc is null or not a function.");
+            }
         },
 
         isPaused: function isPaused() {
@@ -92,17 +104,17 @@ define([], function() {
         pause: function pauseMain() {
             if (!_paused) {
                 _paused = true;
-                cancelAnimationFrame(_mainLoopId);
+                cancelAnimationFrame(_renderLoopId);
             }
         },
 
         play: function playMain() {
             if (_paused) {
                 _paused = false;
-                _mainLoopId = requestAnimationFrame(_mainLoop);
+                _updateLoopId = setInterval(_updateLoop, 1000 / 60);  // aim for 60 FPS
+                _renderLoopId = requestAnimationFrame(_renderLoop);
             }
         }
-
     };
 
     return tangleCore;
