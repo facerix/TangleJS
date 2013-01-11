@@ -7,7 +7,7 @@
 
 define([], function() {
     // requestAnimationFrame / cancelAnimationFrame implementation;
-    // adapted from the polyfill by Erik M�ller, fixes from Paul Irish and Tino Zijdel
+    // adapted from the polyfill by Erik Moller, fixes from Paul Irish and Tino Zijdel
     // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
     // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
     var lastTime = 0;
