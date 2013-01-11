@@ -22,14 +22,12 @@ require(
 
 
         // set up main loop & FPS callback
-        Tangle.main(function main() {
-            _moveClock();
-            _drawClock();
-        }, function updateFPS(fps) {
+        Tangle.init(_moveClock, _drawClock, function updateFPS(fps) {
             txtFPS.innerHTML = Math.floor(fps);
         });
+        Tangle.play();
 
-
+      
         // helper functions
 
         function _moveClock() {
