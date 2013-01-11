@@ -89,7 +89,7 @@ define([], function() {
                 _renderLoop = function() {
                     _checkFPS();  // calls fpsFunc with the latest calculated FPS
                     renderFunc();
-                    requestAnimationFrame(arguments.callee);
+                    _renderLoopId = requestAnimationFrame(arguments.callee);
                 }
             } else {
                 _renderLoop = null;
@@ -104,6 +104,7 @@ define([], function() {
         pause: function pauseMain() {
             if (!_paused) {
                 _paused = true;
+                clearInterval(_updateLoopId);
                 cancelAnimationFrame(_renderLoopId);
             }
         },
