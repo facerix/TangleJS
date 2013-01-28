@@ -27,7 +27,7 @@ require(
         });
         Tangle.play();
 
-      
+
         // helper functions
 
         function _moveClock() {
