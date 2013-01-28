@@ -2,7 +2,7 @@ require.config({
     baseUrl: '../..'
 });
 require(
-    ["atto/core", "atto/progressBar", "tangle/AssetCache"],
+    ["atto/core", "atto/progressBar", "tangle/assetCache"],
     function(atto, ProgressBar, AssetCache) {
         var opts      = atto.byId("assetUrls").options,
             cache     = new AssetCache(),
