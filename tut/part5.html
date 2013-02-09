@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Let's Make a Canvas Library: Input</title>
+
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+        html, body { padding: 0; margin: 0; }
+        .main {
+            width: 800px;
+            margin: 0 auto;
+            background: #F7F7F7;
+            padding: 10px 20px;
+            border-style: dotted;
+            border-width: 0 2px;
+            border-color: #CCC;
+        }
+        section { display: block; }
+        #controls { width: 320px; }
+        canvas {
+            width: 320px;
+            height: 240px;
+            border: 1px solid #CCC;
+        }
+        canvas p { text-align: center; }
+    </style>
+  </head>
+  <body>
+    <article class="main">
+        <h1>Let's Make a Canvas Library, Part 5: Input</h1>
+
+        <p>This page includes a stripped-down demo of the InputManager module,
+           in the form of a simple "Snake" game (minus the stuff that requires collision
+           detection &mdash; that comes later).</p>
+
+        <p>I've set InputManager up with several different control schemes for the snake:</p>
+        <ul>Touchscreen devices:
+            <li>swipe to change direction</li>
+            <li>single-tap on top/bottom/left/right of canvas to move in that direction</li>
+            <li>two-fingered tap to stop</li>
+        </ul>
+
+        <ul>Keyboard:
+            <li>Arrow keys, Numeric keypad arrows, and IJKL keys to change direction</li>
+            <li>P to Panic, S to stop moving</li>
+        </ul>
+
+        <p>For a more detailed discussion of what InputManager is doing behind the scenes,
+           read the <a href="http://www.buyog.com/code/post/lets-make-canvas-library-input">related blog post</a>.</p>
+
+        <hr/>
+
+        <section id="controls">
+            <button id="onoff">Pause</button>
+        </section>
+        <section id="gameContainer">
+          <div id="game">
+            <canvas id="mainCanvas" width='320' height='240'>
+              <p>It looks like your browser can't speak "canvas".</p>
+              <p>This part of the demo's not gonna work for you.</p>
+              <p>Sorry about that.</p>
+            </canvas>
+          </div>
+        </section>
+    </article>
+
+    <script src="../../require.js" data-main="p05_inputDemo"></script>
+  </body>
+</html>
