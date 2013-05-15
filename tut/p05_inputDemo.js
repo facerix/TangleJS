@@ -24,7 +24,16 @@ require(
                 height: _canvas && _canvas.height || 0
             },
             _player  = new Player(),
-            _inMgr   = new InputManager();
+            _im   = new InputManager(),
+            _inputs = {
+                    UP    : 1,
+                    DOWN  : 2,
+                    LEFT  : 3,
+                    RIGHT : 4,
+                    BTN1  : 5,
+                    BTN2  : 6
+            },
+            _txtFPS  = document.getElementById('fps');
 
         if (_canvas) {
             //console.log('getting context...');
@@ -49,7 +58,7 @@ require(
         }
 
         function _updateFPS(fps) {
-            //console.log('fps:',fps);
+            _txtFPS.innerHTML = Math.floor(fps);
         }
 
         // set up main loops
@@ -75,33 +84,68 @@ require(
 
         // set up input manager (could be done in another file and just included here)
 
-        _inMgr.connect(document, 'key:I', _player.cmd, _player.commands.UP);
-        _inMgr.connect(document, 'key:J', _player.cmd, _player.commands.LEFT);
-        _inMgr.connect(document, 'key:K', _player.cmd, _player.commands.DOWN);
-        _inMgr.connect(document, 'key:L', _player.cmd, _player.commands.RIGHT);
-        _inMgr.connect(document, 'key:Q', _player.cmd, _player.commands.STOP);
-        _inMgr.connect(document, 'key:P', _player.cmd, _player.commands.PANIC);
+        _im.listen(function(input) {
+            switch(input) {
+                case _inputs.UP:
+                    _player.input(_player.commands.UP);
+                    break;
+                case _inputs.DOWN:
+                    _player.input(_player.commands.DOWN);
+                    break;
+                case _inputs.LEFT:
+                    _player.input(_player.commands.LEFT);
+                    break;
+                case _inputs.RIGHT:
+                    _player.input(_player.commands.RIGHT);
+                    break;
+                case _inputs.BTN1:
+                    _player.input(_player.commands.STOP);
+                    break;
+                case _inputs.BTN2:
+                    _player.input(_player.commands.PANIC);
+                    break;
+                default:
+                    break;
+            }
+        });
 
-        _inMgr.connect(document, 'key:ARROW_U', _player.cmd, _player.commands.UP);
-        _inMgr.connect(document, 'key:ARROW_L', _player.cmd, _player.commands.LEFT);
-        _inMgr.connect(document, 'key:ARROW_D', _player.cmd, _player.commands.DOWN);
-        _inMgr.connect(document, 'key:ARROW_R', _player.cmd, _player.commands.RIGHT);
-        _inMgr.connect(document, 'key:CLEAR',   _player.cmd, _player.commands.STOP);
-        _inMgr.connect(document, 'key:SPACE',   _player.cmd, _player.commands.PANIC);
+        _im.alias(document, 'key:I', _inputs.UP);
+        _im.alias(document, 'key:J', _inputs.LEFT);
+        _im.alias(document, 'key:K', _inputs.DOWN);
+        _im.alias(document, 'key:L', _inputs.RIGHT);
+        _im.alias(document, 'key:Q', _inputs.BTN1);
+        _im.alias(document, 'key:P', _inputs.BTN2);
 
-        _inMgr.connect(document, 'key:KEYPAD_8', _player.cmd, _player.commands.UP);
-        _inMgr.connect(document, 'key:KEYPAD_4', _player.cmd, _player.commands.LEFT);
-        _inMgr.connect(document, 'key:KEYPAD_2', _player.cmd, _player.commands.DOWN);
-        _inMgr.connect(document, 'key:KEYPAD_6', _player.cmd, _player.commands.RIGHT);
-        _inMgr.connect(document, 'key:KEYPAD_5', _player.cmd, _player.commands.STOP);
+        _im.alias(document, 'key:ARROW_U', _inputs.UP);
+        _im.alias(document, 'key:ARROW_L', _inputs.LEFT);
+        _im.alias(document, 'key:ARROW_D', _inputs.DOWN);
+        _im.alias(document, 'key:ARROW_R', _inputs.RIGHT);
+        _im.alias(document, 'key:ESCAPE',  _inputs.BTN1);
+        _im.alias(document, 'key:SPACE',   _inputs.BTN2);
+
+        _im.alias(document, 'key:KEYPAD_8', _inputs.UP);
+        _im.alias(document, 'key:KEYPAD_4', _inputs.LEFT);
+        _im.alias(document, 'key:KEYPAD_2', _inputs.DOWN);
+        _im.alias(document, 'key:KEYPAD_6', _inputs.RIGHT);
+        _im.alias(document, 'key:KEYPAD_5', _inputs.BTN1);
+
+        _im.alias(document, 'touch:SWIPE_UP',    _inputs.UP);
+        _im.alias(document, 'touch:SWIPE_LEFT',  _inputs.LEFT);
+        _im.alias(document, 'touch:SWIPE_DOWN',  _inputs.DOWN);
+        _im.alias(document, 'touch:SWIPE_RIGHT', _inputs.RIGHT);
+        _im.alias(document, 'touch:MULTI_TAP',   _inputs.STOP);
 
 
-        _inMgr.connect(document, 'touch:SWIPE_UP', _player.cmd, _player.commands.UP);
-        _inMgr.connect(document, 'touch:SWIPE_LEFT', _player.cmd, _player.commands.LEFT);
-        _inMgr.connect(document, 'touch:SWIPE_DOWN', _player.cmd, _player.commands.DOWN);
-        _inMgr.connect(document, 'touch:SWIPE_RIGHT', _player.cmd, _player.commands.RIGHT);
-        _inMgr.connect(document, 'touch:MULTI_TAP', _player.cmd, _player.commands.STOP);
-
+/* debug
+        atto.addEvent(document, 'keypress', function(e) {
+            var key = (e.charCode || e.keyCode || e.which);
+            console.log("keypress:", key);
+        });
+        atto.addEvent(document, 'keydown', function(e) {
+            var key = (e.charCode || e.keyCode || e.which);
+            console.log("keydown:", key);
+        });
+*/
 
         /*
 
@@ -117,7 +161,7 @@ require(
             var inp = _inputBuffer.pop();
             switch (inp) {
                 case _inputs.MOUSE_CLICK:
-                    _player.cmd(_player.commands.PANIC);
+                    _player.cmd(_inputs.PANIC);
                     break;
                 default:
                     break;

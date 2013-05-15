@@ -6,8 +6,8 @@
 //
 
 define(
-    ['atto/core', 'atto/event', 'atto/pubsub'],
-    function(atto, AttoEvent, pubsub) {
+    ['atto/core'],
+    function(atto) {
         var _commands = {
             'PANIC': 's0',
             'STOP' : 's1',
@@ -163,7 +163,7 @@ define(
             return {
                 update   : _update,
                 render   : _render,
-                cmd      : _cmd,
+                input    : _cmd,
                 commands : _commands
             } // end of public interface
         } // end of constructor

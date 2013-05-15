@@ -6,15 +6,16 @@
 //
 // API rough sketch:
 //
-//    (int) connect(source, signal, target, method)  -- returns a connection ID (used by disconnect)
-//    void disconnect(connection_id)
+//    void listen(callback: function(signal))
+//    int alias(sourceNode, eventSignature, signalToFire)  -- returns a connection ID (used by forget)
+//    void forget(connection_id)
 //
 //    (so, something like a cross between typical pub/sub and dojo/on)
 //
 
 define(
-    ['atto/core', 'atto/event', 'atto/pubsub'],
-    function(atto, AttoEvent, pubsub) {
+    ['atto/core', 'atto/event'],
+    function(atto, AttoEvent) {
         function constructor(args) {
 
             // private defs & methods
@@ -83,6 +84,10 @@ define(
                 lastUid = -1,
                 handlers = {};
 
+            var _events = {
+                fired: new AttoEvent('tangle.inputManager.fired')
+            };
+
             // do whatever initialization you need to do
 
             // event handlers
@@ -92,15 +97,8 @@ define(
             function _createKeydownHandler(sourceNode) {
                 return function(e) {
                     var key = (e.charCode || e.keyCode || e.which);
-                    // Map lower-case codes to the upper-case versions, so
-                    //   the client code only has to connect letter keys once
-                    if (key > 90) key = key-32;
-                    if (keydown_signals.hasOwnProperty(key)) {
-                        var func = keydown_signals[key][0],
-                            sgl  = keydown_signals[key][1];
-                        func.call(sourceNode, sgl);
-                    //} else {
-                    //    console.log('keydown:', key);
+                    if (_callback && keydown_signals.hasOwnProperty(key)) {
+                        _callback(keydown_signals[key]);
                     }
                 };
             }
@@ -111,21 +109,18 @@ define(
                     // Map lower-case codes to the upper-case versions, so
                     //   the client code only has to connect letter keys once
                     if (key > 90) key = key-32;
-                    if (keypress_signals.hasOwnProperty(key)) {
-                        var func = keypress_signals[key][0],
-                            sgl  = keypress_signals[key][1];
-                        func.call(sourceNode, sgl);
+                    if (_callback && keypress_signals.hasOwnProperty(key)) {
+                        _callback(keypress_signals[key]);
                     }
                 };
             }
 
-            function _registerKeySignal(srcNode, keyName, tgtFunc, signal) {
+            function _registerKeySignal(srcNode, keyName, signal) {
                 // some keys can only be captured on keydown, but keypress is better if possible
                 // (see Dojo 1.6's _base/event.js or Dojo 1.8's on.js for more info)
 
                 var charCode, handlerId;
 
-                // For the moment, we're only implementing single-key signatures (printables)
                 if (keyName.length === 1) {
                     // only doing alpha characters for now; make sure code is in
                     //   the lower- or upper-case range
@@ -133,7 +128,7 @@ define(
                     handlerId = srcNode.id + ":keypress";
 
                     if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123)) {
-                        keypress_signals[charCode] = [tgtFunc, signal];
+                        keypress_signals[charCode] = signal;
 
                         // if there's no keypress event handler yet for the specified source node, add one
                         if (!handlers.hasOwnProperty(handlerId)) {
@@ -145,7 +140,7 @@ define(
                 } else {
                     // check the whitelist for supported keys (this could be a lot more comprehensive)
                     if (key_mappings.hasOwnProperty(keyName)) {
-                        keydown_signals[key_mappings[keyName]] = [tgtFunc, signal];
+                        keydown_signals[key_mappings[keyName]] = signal;
                         handlerId = srcNode.id + ":keydown";
 
                         // if there's no keypress event handler yet for the specified source node, add one
@@ -168,16 +163,16 @@ define(
             function _registerTouchSignal(signature, tgtFunc, signal) {
             }
 
-            function _connect(srcNode, eventSignature, tgtFunc, signal) {
+            function _connect(srcNode, eventSignature, signalToRaise) {
                 /* Examples:
-                     inputMgr.connect(doc, "key:I", player.cmd, player.commands.UP)
-                     inputMgr.connect(doc, "mouse:CLICK", player.cmd, player.commands.CLICK)
-                     inputMgr.connect(doc, "touch:SWIPE_LEFT", player.cmd, player.commands.LEFT)
+                     inputMgr.connect(doc, "key:I", myCommands.UP)
+                     inputMgr.connect(doc, "mouse:CLICK", myCommands.FIRE)
+                     inputMgr.connect(doc, "touch:SWIPE_LEFT", myCommands.LEFT)
                  */
                 var eventInfo = eventSignature.toUpperCase().split(':'),
                     connectionId;
 
-                if (srcNode && eventSignature && tgtFunc && (signal !== null)) {
+                if (srcNode && eventSignature && signalToRaise) {
                     var sourceId = srcNode.id || srcNode.name;
 
                     // if no sourceId is available, we'll need to assign a unique ID to the source node
@@ -187,7 +182,7 @@ define(
 
                     switch (eventInfo[0]) {
                         case 'KEY':
-                            connectionId = _registerKeySignal(srcNode, eventInfo[1], tgtFunc, signal);
+                            connectionId = _registerKeySignal(srcNode, eventInfo[1], signalToRaise);
                             break;
 
                         case 'MOUSE':
@@ -218,10 +213,15 @@ define(
                 }
             }
 
+            function _setListener(cb) {
+                if (cb && typeof cb === 'function') _callback = cb;
+            }
+
 
             return {
-                connect    : _connect,
-                disconnect : _disconnect
+                listen : _setListener,
+                alias  : _connect,
+                forget : _disconnect
             } // end of public interface
         } // end of constructor
 
