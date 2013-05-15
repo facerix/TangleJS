@@ -67,6 +67,30 @@ define([], function() {
     }
 
     var tangleCore = {
+        addEvent: function(tgt, type, func, useCapture) {
+        // follows the API of the standard addEventListener, but abstracts it to work cross-browser
+        // (repurposed wholesale from Atto Core)
+            var capture = useCapture || false;
+            if (tgt.addEventListener) {
+                // modern standards-based browsers
+                tgt.addEventListener(type, func, capture);
+            } else if (tgt.attachEvent) {
+                // IE < 9
+                tgt.attachEvent('on'+type, func);
+            } else if (typeof tgt['on'+type] !== 'undefined') {
+                // old school (can assign to the element's event handler this way, provided it's not undefined)
+                var oldfunc = tgt['on'+type];
+                if (typeof oldfunc === 'function') {
+                    tgt['on'+type] = function() { oldfunc(); func(); };
+                } else {
+                    tgt['on'+type] = func;
+                }
+            } else {
+                alert ("Can't add this event type: " + type + " to this element: " + tgt);
+            }
+        },
+
+
         init: function game_init(updateFunc, renderFunc, fpsFunc) {
             _paused = true;
 
