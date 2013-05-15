@@ -21,6 +21,8 @@
         }
         section { display: block; }
         #controls { width: 320px; }
+        #fps { float: right; }
+        #fps:after { content: " FPS"; }
         canvas {
             width: 320px;
             height: 240px;
@@ -46,7 +48,7 @@
 
         <ul>Keyboard:
             <li>Arrow keys, Numeric keypad arrows, and IJKL keys to change direction</li>
-            <li>P to Panic, S to stop moving</li>
+            <li>P or SPACE to Panic, S or ESC to stop moving</li>
         </ul>
 
         <p>For a more detailed discussion of what InputManager is doing behind the scenes,
@@ -56,6 +58,7 @@
 
         <section id="controls">
             <button id="onoff">Pause</button>
+            <span id="fps">&mdash;</span>
         </section>
         <section id="gameContainer">
           <div id="game">
