@@ -16,18 +16,16 @@ define(
                 _states = {},
                 _currState = null;
 
-            function _change(id) {
-                //console.log("ChangeState :: the 'this' that will get passed into call is:", this);
+            function _change(id, args) {
                 if (_states.hasOwnProperty(id)) {
                     _state = id;
                     _currState = _states[id];
-                    if (_currState.before) _currState.before.apply(this);
+                    if (_currState.before) _currState.before.call(this, args);
                     _events.changeState.dispatch({id:id, title:_currState.title});
                 }
             }
 
             function _add(def) {
-                //console.log("AddState :: by now 'this' has a different definition:", this);
                 if ((def.id != undefined) && (_states.hasOwnProperty(def.id) == false)) {
                     if (!def.tick) {
                         console.log('adding tick stub');
@@ -42,14 +40,13 @@ define(
             }
 
             function _tick(game) {
-                //console.dir(game);
                 var newState;
                 if (_currState.hasOwnProperty('tick')) {
                     newState = _currState.tick(game);
                 }
 
                 if (newState) {
-                    this.changeState(newState);
+                    this.changeState(newState, game);
                 }
             }
 
