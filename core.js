@@ -5,42 +5,54 @@
 // license: MIT
 //
 
+/*jslint browser: true*/
+/*jslint plusplus: true*/
+/*global define, alert, console, requestAnimationFrame, cancelAnimationFrame */
+
 define([], function() {
+    "use strict";
+
     // requestAnimationFrame / cancelAnimationFrame implementation;
     // adapted from the polyfill by Erik Moller, fixes from Paul Irish and Tino Zijdel
     // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
     // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-    var lastTime = 0;
-    var vendors = ['ms', 'moz', 'webkit', 'o'];
-    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
-                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
-    }
+    (function(){
+        var x, lastTime = 0,
+            vendors = ['ms', 'moz', 'webkit', 'o'];
 
-    if (!window.requestAnimationFrame)
-        window.requestAnimationFrame = function(callback, element) {
-            var currTime = new Date().getTime();
-            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-              timeToCall);
-            lastTime = currTime + timeToCall;
-            return id;
-        };
+        for(x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+            window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                       || window[vendors[x]+'CancelRequestAnimationFrame'];
+        }
 
-    if (!window.cancelAnimationFrame)
-        window.cancelAnimationFrame = function(id) {
-            clearTimeout(id);
-        };
+        if (!window.requestAnimationFrame) {
+            window.requestAnimationFrame = function(callback, element) {
+                var currTime = new Date().getTime(),
+                    timeToCall = Math.max(0, 16 - (currTime - lastTime)),
+                    id = window.setTimeout(
+                        function() { callback(currTime + timeToCall); },
+                        timeToCall
+                    );
+                lastTime = currTime + timeToCall;
+                return id;
+            };
+        }
 
+        if (!window.cancelAnimationFrame) {
+            window.cancelAnimationFrame = function(id) {
+                clearTimeout(id);
+            };
+        }
+    }());   // (enclosed in an IIFE to contain the madness)
     // end of requestAnimationFrame/cancelAnimationFrame polyfill
 
     var _updateLoop,
         _renderLoop,
         _renderLoopId,
-        _paused = true;
-
-    var elapsedMs = 0,
+        _updateLoopId,
+        _paused = true,
+        elapsedMs = 0,
         framesThisSecond = 0,
         previousTimestamp = 0,
         currentTimestamp = new Date().getTime(),
@@ -66,11 +78,12 @@ define([], function() {
         }
     }
 
-    var tangleCore = {
+    // return the singleton tangleCore object
+    return {
         addEvent: function(tgt, type, func, useCapture) {
         // follows the API of the standard addEventListener, but abstracts it to work cross-browser
         // (repurposed wholesale from Atto Core)
-            var capture = useCapture || false;
+            var oldfunc, capture = useCapture || false;
             if (tgt.addEventListener) {
                 // modern standards-based browsers
                 tgt.addEventListener(type, func, capture);
@@ -79,7 +92,7 @@ define([], function() {
                 tgt.attachEvent('on'+type, func);
             } else if (typeof tgt['on'+type] !== 'undefined') {
                 // old school (can assign to the element's event handler this way, provided it's not undefined)
-                var oldfunc = tgt['on'+type];
+                oldfunc = tgt['on'+type];
                 if (typeof oldfunc === 'function') {
                     tgt['on'+type] = function() { oldfunc(); func(); };
                 } else {
@@ -95,26 +108,26 @@ define([], function() {
             _paused = true;
 
             if (fpsFunc) {
-                if (typeof fpsFunc == "function") {
+                if (typeof fpsFunc === "function") {
                     _fpsCallback = fpsFunc;
                 } else {
                     console.error("[Tangle.main] >> Provided argument fpsFunc is not a function.");
                 }
             }
 
-            if (updateFunc && typeof updateFunc == "function") {
+            if (updateFunc && typeof updateFunc === "function") {
                 _updateLoop = updateFunc;
             } else {
                 _updateLoop = null;
                 console.error("[Tangle.main] >> Provided argument updateFunc is null or not a function.");
             }
 
-            if (renderFunc && typeof renderFunc == "function") {
+            if (renderFunc && typeof renderFunc === "function") {
                 _renderLoop = function() {
                     _checkFPS();  // calls fpsFunc with the latest calculated FPS
                     renderFunc();
-                    _renderLoopId = requestAnimationFrame(arguments.callee);
-                }
+                    _renderLoopId = requestAnimationFrame(_renderLoop);
+                };
             } else {
                 _renderLoop = null;
                 console.error("[Tangle.main] >> Provided argument renderFunc is null or not a function.");
@@ -122,7 +135,7 @@ define([], function() {
         },
 
         isPaused: function isPaused() {
-            return (_paused == true);
+            return (_paused);
         },
 
         pause: function pauseMain() {
@@ -141,6 +154,4 @@ define([], function() {
             }
         }
     };
-
-    return tangleCore;
 });
