@@ -56,8 +56,33 @@ define([], function() {
         framesThisSecond = 0,
         previousTimestamp = 0,
         currentTimestamp = new Date().getTime(),
-        _fpsCallback = function() {};
+        _fpsCallback = function() {},
+        pageVis = {};
 
+
+    // Page Visibility API flattening (uses browser-prefixed if no standard version)
+    // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
+    (function(pv){
+        // Set the name of the hidden property and the change event for visibility
+        var hidden, visibilityChange; 
+        if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+            pv.hidden = "hidden";
+            pv.visibilityChange = "visibilitychange";
+        } else if (typeof document.mozHidden !== "undefined") {
+            pv.hidden = "mozHidden";
+            pv.visibilityChange = "mozvisibilitychange";
+        } else if (typeof document.msHidden !== "undefined") {
+            pv.hidden = "msHidden";
+            pv.visibilityChange = "msvisibilitychange";
+        } else if (typeof document.webkitHidden !== "undefined") {
+            pv.hidden = "webkitHidden";
+            pv.visibilityChange = "webkitvisibilitychange";
+        }
+    }(pageVis));   // (end of enclosing IIFE)
+    // end of pageVisibility polyfill
+
+
+    // helper functions
     function _checkFPS() {
         var currentFPS;
 
@@ -78,31 +103,59 @@ define([], function() {
         }
     }
 
-    // return the singleton tangleCore object
-    return {
-        addEvent: function(tgt, type, func, useCapture) {
+
+    // public function implementations (here instead of inline below if we need to invoke them)
+    function _addEvent(tgt, type, func, useCapture) {
         // follows the API of the standard addEventListener, but abstracts it to work cross-browser
         // (repurposed wholesale from Atto Core)
-            var oldfunc, capture = useCapture || false;
-            if (tgt.addEventListener) {
-                // modern standards-based browsers
-                tgt.addEventListener(type, func, capture);
-            } else if (tgt.attachEvent) {
-                // IE < 9
-                tgt.attachEvent('on'+type, func);
-            } else if (typeof tgt['on'+type] !== 'undefined') {
-                // old school (can assign to the element's event handler this way, provided it's not undefined)
-                oldfunc = tgt['on'+type];
-                if (typeof oldfunc === 'function') {
-                    tgt['on'+type] = function() { oldfunc(); func(); };
-                } else {
-                    tgt['on'+type] = func;
-                }
+        var oldfunc, capture = useCapture || false;
+        if (tgt.addEventListener) {
+            // modern standards-based browsers
+            tgt.addEventListener(type, func, capture);
+        } else if (tgt.attachEvent) {
+            // IE < 9
+            tgt.attachEvent('on'+type, func);
+        } else if (typeof tgt['on'+type] !== 'undefined') {
+            // old school (can assign to the element's event handler this way, provided it's not undefined)
+            oldfunc = tgt['on'+type];
+            if (typeof oldfunc === 'function') {
+                tgt['on'+type] = function() { oldfunc(); func(); };
             } else {
-                alert ("Can't add this event type: " + type + " to this element: " + tgt);
+                tgt['on'+type] = func;
             }
-        },
+        } else {
+            alert ("Can't add this event type: " + type + " to this element: " + tgt);
+        }
+    }
 
+    function _pauseMain() {
+        if (!_paused) {
+            _paused = true;
+            clearInterval(_updateLoopId);
+            cancelAnimationFrame(_renderLoopId);
+        }
+    }
+
+    function _playMain() {
+        if (_paused) {
+            _paused = false;
+            _updateLoopId = setInterval(_updateLoop, 1000 / 60);  // aim for 60 FPS
+            _renderLoopId = requestAnimationFrame(_renderLoop);
+        }
+    }
+
+    // Handle page visibility change
+    _addEvent(document, pageVis.visibilityChange, function _handleVisibilityChange() {
+        if (document[pageVis.hidden]) {
+            _pauseMain();
+        } else {
+            _playMain();
+        }
+    });
+
+    // return the singleton tangleCore object
+    return {
+        addEvent: _addEvent,
 
         init: function game_init(updateFunc, renderFunc, fpsFunc) {
             _paused = true;
@@ -138,20 +191,7 @@ define([], function() {
             return (_paused);
         },
 
-        pause: function pauseMain() {
-            if (!_paused) {
-                _paused = true;
-                clearInterval(_updateLoopId);
-                cancelAnimationFrame(_renderLoopId);
-            }
-        },
-
-        play: function playMain() {
-            if (_paused) {
-                _paused = false;
-                _updateLoopId = setInterval(_updateLoop, 1000 / 60);  // aim for 60 FPS
-                _renderLoopId = requestAnimationFrame(_renderLoop);
-            }
-        }
+        pause: _pauseMain,
+        play: _playMain
     };
 });
