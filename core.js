@@ -139,6 +139,7 @@ define([], function() {
     function _playMain() {
         if (_paused) {
             _paused = false;
+            currentTimestamp = new Date().getTime();
             _updateLoopId = setInterval(_updateLoop, 1000 / 60);  // aim for 60 FPS
             _renderLoopId = requestAnimationFrame(_renderLoop);
         }
