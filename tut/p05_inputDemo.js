@@ -33,7 +33,8 @@ require(
                     BTN1  : 5,
                     BTN2  : 6
             },
-            _txtFPS  = document.getElementById('fps');
+            _txtFPS  = document.getElementById('fps'),
+            _txtAction = document.getElementById('currentAction');
 
         if (_canvas) {
             //console.log('getting context...');
@@ -58,7 +59,10 @@ require(
         }
 
         function _updateFPS(fps) {
-            _txtFPS.innerHTML = Math.floor(fps);
+            _txtFPS.innerHTML = ~~fps;
+        }
+        function _updateAction(txt) {
+            _txtAction.innerHTML = txt;
         }
 
         // set up main loops
@@ -87,21 +91,27 @@ require(
         _im.listen(function(input) {
             switch(input) {
                 case _inputs.UP:
+                    _updateAction("up");
                     _player.input(_player.commands.UP);
                     break;
                 case _inputs.DOWN:
+                    _updateAction("down");
                     _player.input(_player.commands.DOWN);
                     break;
                 case _inputs.LEFT:
+                    _updateAction("left");
                     _player.input(_player.commands.LEFT);
                     break;
                 case _inputs.RIGHT:
+                    _updateAction("right");
                     _player.input(_player.commands.RIGHT);
                     break;
                 case _inputs.BTN1:
+                    _updateAction("stopped");
                     _player.input(_player.commands.STOP);
                     break;
                 case _inputs.BTN2:
+                    _updateAction("panic!");
                     _player.input(_player.commands.PANIC);
                     break;
                 default:

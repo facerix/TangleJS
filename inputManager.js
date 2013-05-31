@@ -7,74 +7,82 @@
 // API rough sketch:
 //
 //    void listen(callback: function(signal))
-//    int alias(sourceNode, eventSignature, signalToFire)  -- returns a connection ID (used by forget)
+//    int alias(sourceNode, eventSignature, signalToRaise)  -- returns a connection ID (used by forget)
 //    void forget(connection_id)
 //
 //    (so, something like a cross between typical pub/sub and dojo/on)
 //
 
+/*jslint browser: true*/
+/*jslint plusplus: true*/
+/*global define, console*/
+
 define(
     ['atto/core', 'atto/event'],
     function(atto, AttoEvent) {
+        "use strict";
+
         function constructor(args) {
 
             // private defs & methods
-            var key_mappings = {
-                BREAK       : 3
-                , BACKSPACE : 8
-                , TAB       : 9
-                , CLEAR     : 12
-                , ENTER     : 13
-                , SHIFT     : 16
-                , CTRL      : 17
-                , ALT       : 18
-                , PAUSE     : 19
-                , CAPS      : 20
-                , ESCAPE    : 27
-                , SPACE     : 32
-                , PGUP      : 33
-                , PGDN      : 34
-                , END       : 35
-                , HOME      : 36
-                , ARROW_L   : 37
-                , ARROW_U   : 38
-                , ARROW_R   : 39
-                , ARROW_D   : 40
-                , ARROW_LEFT  : 37
-                , ARROW_UP    : 38
-                , ARROW_RIGHT : 39
-                , ARROW_DOWN  : 40
-                , INS      : 45
-                , DEL      : 46
-                , INSERT   : 45
-                , DELETE   : 46
-                , WIN      : 59
-                , MENU     : 61
-                , KEYPAD_0 : 64
-                , KEYPAD_1 : 65
-                , KEYPAD_2 : 66
-                , KEYPAD_3 : 67
-                , KEYPAD_4 : 68
-                , KEYPAD_5 : 69
-                , KEYPAD_6 : 70
-                , KEYPAD_7 : 71
-                , KEYPAD_8 : 72
-                , KEYPAD_9 : 73
-                , F1       : 80
-                , F2       : 81
-                , F3       : 82
-                , F4       : 83
-                , F5       : 84
-                , F6       : 85
-                , F7       : 86
-                , F8       : 87
-                , F9       : 88
-                , F10      : 89
-                , F11      : 90
-                , F12      : 91
-                , NUM_LOCK    : 112
-                , SCROLL_LOCK : 113
-            };
+            var _callback
+                , key_mappings = {
+                    BREAK       : 3
+                    , BACKSPACE : 8
+                    , TAB       : 9
+                    , CLEAR     : 12
+                    , ENTER     : 13
+                    , SHIFT     : 16
+                    , CTRL      : 17
+                    , ALT       : 18
+                    , PAUSE     : 19
+                    , CAPS      : 20
+                    , ESCAPE    : 27
+                    , SPACE     : 32
+                    , PGUP      : 33
+                    , PGDN      : 34
+                    , END       : 35
+                    , HOME      : 36
+                    , ARROW_L   : 37
+                    , ARROW_U   : 38
+                    , ARROW_R   : 39
+                    , ARROW_D   : 40
+                    , ARROW_LEFT  : 37
+                    , ARROW_UP    : 38
+                    , ARROW_RIGHT : 39
+                    , ARROW_DOWN  : 40
+                    , INS      : 45
+                    , DEL      : 46
+                    , INSERT   : 45
+                    , DELETE   : 46
+                    , WIN      : 59
+                    , MENU     : 61
+                    , KEYPAD_0 : 64
+                    , KEYPAD_1 : 65
+                    , KEYPAD_2 : 66
+                    , KEYPAD_3 : 67
+                    , KEYPAD_4 : 68
+                    , KEYPAD_5 : 69
+                    , KEYPAD_6 : 70
+                    , KEYPAD_7 : 71
+                    , KEYPAD_8 : 72
+                    , KEYPAD_9 : 73
+                    , F1       : 80
+                    , F2       : 81
+                    , F3       : 82
+                    , F4       : 83
+                    , F5       : 84
+                    , F6       : 85
+                    , F7       : 86
+                    , F8       : 87
+                    , F9       : 88
+                    , F10      : 89
+                    , F11      : 90
+                    , F12      : 91
+                    , NUM_LOCK    : 112
+                    , SCROLL_LOCK : 113
+                }
+            ;
 
             var connection_cache = {},
                 keypress_signals = {},
@@ -108,9 +116,52 @@ define(
                     var key = (e.charCode || e.keyCode || e.which);
                     // Map lower-case codes to the upper-case versions, so
                     //   the client code only has to connect letter keys once
-                    if (key > 90) key = key-32;
+                    if (key > 90) {key = key-32;}
                     if (_callback && keypress_signals.hasOwnProperty(key)) {
                         _callback(keypress_signals[key]);
+                    }
+                };
+            }
+
+            function _createTouchHandlers(sourceNode, threshold) {
+                var x0, y0, minDelta = threshold || 50;
+                return {
+                    start: function(e) {
+                        var touches = e.originalEvent.touches;
+                        if (touches && touches.length) {
+                            x0 = touches[0].pageX;
+                            y0 = touches[0].pageY;
+                        }
+                        e.preventDefault();
+                    }
+                    , move: function(e) {
+                        var dx, dy, direction, 
+                            touches = e.originalEvent.touches;
+                        if (touches && touches.length) {
+                            dx = x0 - touches[0].pageX;
+                            dy = y0 - touches[0].pageY;
+
+                            if (dx >= minDelta) {
+                                direction = "left";
+                            }
+                            if (dx <= -minDelta) {
+                                direction = "right";
+                            }
+                            if (dy >= minDelta) {
+                                direction = "up";
+                            }
+                            if (dy <= -minDelta) {
+                                direction = "down";
+                            }
+                            if (Math.abs(dx) >= minDelta || Math.abs(dy) >= minDelta) {
+                                //$this.unbind('touchmove', touchmove);
+                            }
+
+                            if (direction && touch_signals.hasOwnProperty(direction)) {
+                                _callback(touch_signals[direction]);
+                            }
+                        }
+                        e.preventDefault();
                     }
                 };
             }
@@ -132,7 +183,7 @@ define(
 
                         // if there's no keypress event handler yet for the specified source node, add one
                         if (!handlers.hasOwnProperty(handlerId)) {
-                            handlers[handlerId] = _createKeypressHandler(srcNode)
+                            handlers[handlerId] = _createKeypressHandler(srcNode);
                             atto.addEvent(srcNode, 'keypress', handlers[handlerId]);
                         }
                     }
@@ -145,7 +196,7 @@ define(
 
                         // if there's no keypress event handler yet for the specified source node, add one
                         if (!handlers.hasOwnProperty(handlerId)) {
-                            handlers[handlerId] = _createKeydownHandler(srcNode)
+                            handlers[handlerId] = _createKeydownHandler(srcNode);
                             atto.addEvent(srcNode, 'keydown', handlers[handlerId]);
                         }
                     } else {
@@ -160,7 +211,21 @@ define(
             function _registerMouseSignal(signature, tgtFunc, signal) {
             }
 
-            function _registerTouchSignal(signature, tgtFunc, signal) {
+            function _registerTouchSignal(srcNode, signature, signal) {
+                var touchHandlers, handlerId = srcNode.id + ":touch";
+
+                // make sure there's a touch event on srcNode
+                if (!handlers.hasOwnProperty(handlerId)) {
+                    touchHandlers = _createTouchHandlers(srcNode);
+                    handlers[handlerId] = touchHandlers;
+                    
+                    atto.addEvent(srcNode, 'touchstart', touchHandlers.start);
+                    atto.addEvent(srcNode, 'touchmove',  touchHandlers.move);
+                }
+
+                if (signature.slice(0,5) === "SWIPE") {
+                    touch_signals[signature.slice(6)] = signal;
+                }
             }
 
             function _connect(srcNode, eventSignature, signalToRaise) {
@@ -170,10 +235,10 @@ define(
                      inputMgr.connect(doc, "touch:SWIPE_LEFT", myCommands.LEFT)
                  */
                 var eventInfo = eventSignature.toUpperCase().split(':'),
-                    connectionId;
+                    sourceId, connectionId;
 
                 if (srcNode && eventSignature && signalToRaise) {
-                    var sourceId = srcNode.id || srcNode.name;
+                    sourceId = srcNode.id || srcNode.name;
 
                     // if no sourceId is available, we'll need to assign a unique ID to the source node
                     if (!sourceId) {
@@ -190,7 +255,7 @@ define(
                             break;
 
                         case 'TOUCH':
-                            // TBD
+                            connectionId = _registerTouchSignal(srcNode, eventInfo[1], signalToRaise);
                             break;
 
                         default:
@@ -214,7 +279,7 @@ define(
             }
 
             function _setListener(cb) {
-                if (cb && typeof cb === 'function') _callback = cb;
+                if (cb && typeof cb === 'function') {_callback = cb;}
             }
 
 
@@ -222,7 +287,7 @@ define(
                 listen : _setListener,
                 alias  : _connect,
                 forget : _disconnect
-            } // end of public interface
+            }; // end of public interface
         } // end of constructor
 
         return constructor;
