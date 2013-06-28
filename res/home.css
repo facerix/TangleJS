@@ -1,5 +1,6 @@
 body {
-    background-image: url(ricepaper2.png);
+    /* background pattern by Josh Green @ SubtlePatterns: http://subtlepatterns.com/old-mathematics/ */
+    background-image: url(old_mathematics.png);
 }
 
 h1 {
