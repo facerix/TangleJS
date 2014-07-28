@@ -18,8 +18,8 @@
 /*global define, console*/
 
 define(
-    ['atto/core', 'atto/event'],
-    function(atto, AttoEvent) {
+    ['atto/core'],
+    function(atto) {
         "use strict";
 
         function constructor(args) {
@@ -92,14 +92,7 @@ define(
                 lastUid = -1,
                 handlers = {};
 
-            var _events = {
-                fired: new AttoEvent('tangle.inputManager.fired')
-            };
-
             // do whatever initialization you need to do
-
-            // event handlers
-            // TBD
 
             // private helper functions
             function _createKeydownHandler(sourceNode) {
@@ -123,6 +116,24 @@ define(
                 };
             }
 
+            function _createClickHandler(sourceNode) {
+                return function(e) {
+                    var x = e.layerX,
+                        y = e.layerY;
+
+                    // if no callback, there's no point in doing the rest
+                    if (_callback) {
+
+                        // if we've got an _ALL_ signal registered, raise it
+                        if (mouse_signals.hasOwnProperty("CLICK:_ALL_")) {
+                            _callback(mouse_signals["CLICK:_ALL_"]);
+                        }
+
+                        // TODO: check click ranges, if any are specified
+                    }
+                };
+            }
+
             function _createTouchHandlers(sourceNode, threshold) {
                 var x0, y0, minDelta = threshold || 50;
                 return {
@@ -142,16 +153,16 @@ define(
                             dy = y0 - touches[0].pageY;
 
                             if (dx >= minDelta) {
-                                direction = "left";
+                                direction = "LEFT";
                             }
                             if (dx <= -minDelta) {
-                                direction = "right";
+                                direction = "RIGHT";
                             }
                             if (dy >= minDelta) {
-                                direction = "up";
+                                direction = "UP";
                             }
                             if (dy <= -minDelta) {
-                                direction = "down";
+                                direction = "DOWN";
                             }
                             if (Math.abs(dx) >= minDelta || Math.abs(dy) >= minDelta) {
                                 //$this.unbind('touchmove', touchmove);
@@ -208,7 +219,26 @@ define(
                 return handlerId;
             }
 
-            function _registerMouseSignal(signature, tgtFunc, signal) {
+            function _registerMouseSignal(srcNode, signature, signal) {
+                var handlerId, eventType;
+
+                switch (signature) {
+                    case "CLICK":
+                        eventType = "click";
+                        handlerId = srcNode.id + ":click";
+                        mouse_signals["CLICK:_ALL_"] = signal;
+                        break;
+
+                    default:
+                        console.log("Unsupported mouse signal type:", signature);
+                        break;
+                }
+
+                // if there's no corresponding event handler yet for the specified source node, add one
+                if (handlerId && !handlers.hasOwnProperty(handlerId)) {
+                    handlers[handlerId] = _createKeypressHandler(srcNode);
+                    atto.addEvent(srcNode, eventType, handlers[handlerId]);
+                }
             }
 
             function _registerTouchSignal(srcNode, signature, signal) {
@@ -251,7 +281,7 @@ define(
                             break;
 
                         case 'MOUSE':
-                            // TBD
+                            connectionId = _registerMouseSignal(srcNode, eventInfo[1], signalToRaise);
                             break;
 
                         case 'TOUCH':
