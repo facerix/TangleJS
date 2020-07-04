@@ -1,114 +1,147 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
     <title>Tangle Tutorial: Asset Management</title>
 
     <!--[if lt IE 9]>
-    <script src="/js/html5shiv.js"></script>
+      <script src="/js/html5shiv.js"></script>
     <![endif]-->
 
     <style>
-        html, body { padding: 0; margin: 0; }
-        .main {
-            width: 800px;
-            margin: 0 auto;
-            background: #F7F7F7;
-            padding: 10px 20px;
-            border-style: dotted;
-            border-width: 0 2px;
-            border-color: #CCC;
-        }
-        .main section {
-            display: inline-block;
-            vertical-align: top;
-            margin-right: 15px;
-            max-width: 260px;
-        }
-        #prg { width: 240px; }
-        section select { vertical-align: top; }
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      .main {
+        width: 800px;
+        margin: 0 auto;
+        background: #f7f7f7;
+        padding: 10px 20px;
+        border-style: dotted;
+        border-width: 0 2px;
+        border-color: #ccc;
+      }
+      .main section {
+        display: inline-block;
+        vertical-align: top;
+        margin-right: 15px;
+        max-width: 260px;
+      }
+      #prg {
+        width: 240px;
+      }
+      section select {
+        vertical-align: top;
+      }
     </style>
   </head>
   <body>
     <article class="main">
-        <h1>Tangle Tutorial, part 2: Asset Management</h1>
+      <h1>Tangle Tutorial, part 2: Asset Management</h1>
 
-        <p>This is about as barebones a demo as I can make while still getting
-           the point across about what the AssetCache class is for. If you're
-           interested in more details about what's going on here, the related blog
-           post is
-           <a href="http://www.buyog.com/code/post/lets-make-canvas-library-assets">here</a>.</p>
-        <ol>
-           <li>This page references the RequireJS AMD loader, which pulls in assetDemo.js,
-               which in turn loads AssetCache.js and a few other modules as
-               dependencies to make the interactions on this page a little simpler.</li>
-           <li>The listbox on the left below includes a handful of hard-coded
-               filenames referencing potential game assets on my web server.
-               Highlight one or more of these files, then click Preload to kick off
-               the preloading process with that subset of files.</li>
-           <li>The progress bar &amp; status text in the center will show preload
-               progress as each file is grabbed by the AssetCache.</li>
-           <li>Once loaded, these assets can then be immediately accessed from the
-               drop-down list on the right.</li>
-           <li>You can reuse the same AssetCache repeatedly: that is, preload the
-               assets you need for the title screen, show the title, then when the
-               user triggers the next app state, add the next batch of assets to be
-               preloaded. You can test this by selecting just a few of the files and
-               clicking Preload, watching the events that get logged in the status
-               section, then select a few more assets and click Preload again to see
-               that the "All assets loaded" event fires a second time.</li>
-        </ol>
+      <p>
+        This is about as barebones a demo as I can make while still getting the
+        point across about what the AssetCache class is for. If you're
+        interested in more details about what's going on here, the related blog
+        post is
+        <a
+          href="http://www.facerix.com/code/post/lets-make-canvas-library-assets"
+          >here</a
+        >.
+      </p>
+      <ol>
+        <li>
+          This page references the RequireJS AMD loader, which pulls in
+          assetDemo.js, which in turn loads AssetCache.js and a few other
+          modules as dependencies to make the interactions on this page a little
+          simpler.
+        </li>
+        <li>
+          The listbox on the left below includes a handful of hard-coded
+          filenames referencing potential game assets on my web server.
+          Highlight one or more of these files, then click Preload to kick off
+          the preloading process with that subset of files.
+        </li>
+        <li>
+          The progress bar &amp; status text in the center will show preload
+          progress as each file is grabbed by the AssetCache.
+        </li>
+        <li>
+          Once loaded, these assets can then be immediately accessed from the
+          drop-down list on the right.
+        </li>
+        <li>
+          You can reuse the same AssetCache repeatedly: that is, preload the
+          assets you need for the title screen, show the title, then when the
+          user triggers the next app state, add the next batch of assets to be
+          preloaded. You can test this by selecting just a few of the files and
+          clicking Preload, watching the events that get logged in the status
+          section, then select a few more assets and click Preload again to see
+          that the "All assets loaded" event fires a second time.
+        </li>
+      </ol>
 
-        <hr/>
+      <hr />
 
-        <section>
-            <h4>Assets to load:</h4>
-            <select size="10" multiple="multiple" id="assetUrls">
-                <option value='title.png'>title.png</option>
-                <option value='font.png'>font.png</option>
-                <option value='wait.gif'>wait.gif</option>
-                <option value='DST-Raiser.mp3'>DST-Raiser.mp3</option>
-                <option value='DST-Raiser.ogg'>DST-Raiser.ogg</option>
-            </select>
-            <br/>
-            <button id="btnStartPreloader">Preload &rArr;</button>
-            <p>mp3 from <a href="http://www.nosoapradio.us/">NoSoapRadio</a>;<br/>
-               converted to Ogg Vorbis<br/> via <a href="http://media.io/">media.io</a>.</p>
-        </section>
+      <section>
+        <h4>Assets to load:</h4>
+        <select size="10" multiple="multiple" id="assetUrls">
+          <option value="title.png">title.png</option>
+          <option value="font.png">font.png</option>
+          <option value="wait.gif">wait.gif</option>
+          <option value="DST-Raiser.mp3">DST-Raiser.mp3</option>
+          <option value="DST-Raiser.ogg">DST-Raiser.ogg</option>
+        </select>
+        <br />
+        <button id="btnStartPreloader">Preload &rArr;</button>
+        <p>
+          mp3 from <a href="http://www.nosoapradio.us/">NoSoapRadio</a>;<br />
+          converted to Ogg Vorbis<br />
+          via <a href="http://media.io/">media.io</a>.
+        </p>
+      </section>
 
-        <section>
-            <h4>Loading progress:</h4>
-            <div id="prg"></div>
-            <span id="status"></span>
-        </section>
+      <section>
+        <h4>Loading progress:</h4>
+        <div id="prg"></div>
+        <span id="status"></span>
+      </section>
 
-        <section>
-            <h4>In cache:</h4>
-            <select id="cachedAssets">
-                <option value="">(none)</option>
-            </select>
-            <span>
-                <button id='btnPlayPause' disabled='disabled'>Pause</button>
-            </span>
-            <div id="preview">-//-</div>
-        </section>
+      <section>
+        <h4>In cache:</h4>
+        <select id="cachedAssets">
+          <option value="">(none)</option>
+        </select>
+        <span>
+          <button id="btnPlayPause" disabled="disabled">Pause</button>
+        </span>
+        <div id="preview">-//-</div>
+      </section>
 
-        <hr/>
+      <hr />
 
-        <footer>
-           <p>AssetCache works in all modern browsers, and even has limited
-               support for Internet Explorer 8 (images work, but not audio).</p>
-           <p>Support for audio files will depend on your browser and operating
-               system. On my Windows 7 machine, Google Chrome (v20) can load and play
-               back both the mp3 and ogg audio files, but Firefox (v13) only supports
-               the ogg file, and IE9 only supports the mp3. I suspect mobile browsers
-               will be even more spastic.</p>
-           <p>We'll revisit this crazy audio situation in a later tutorial to find a
-               better cross-browser solution. This is an ideal use case for a library:
-               it would be so much nicer if your app code could just specify a single,
-               named audio asset, and let the library figure out the right file format
-               to load based on browser and platform capabilities.</p>
-        </footer>
+      <footer>
+        <p>
+          AssetCache works in all modern browsers, and even has limited support
+          for Internet Explorer 8 (images work, but not audio).
+        </p>
+        <p>
+          Support for audio files will depend on your browser and operating
+          system. On my Windows 7 machine, Google Chrome (v20) can load and play
+          back both the mp3 and ogg audio files, but Firefox (v13) only supports
+          the ogg file, and IE9 only supports the mp3. I suspect mobile browsers
+          will be even more spastic.
+        </p>
+        <p>
+          We'll revisit this crazy audio situation in a later tutorial to find a
+          better cross-browser solution. This is an ideal use case for a
+          library: it would be so much nicer if your app code could just specify
+          a single, named audio asset, and let the library figure out the right
+          file format to load based on browser and platform capabilities.
+        </p>
+      </footer>
     </article>
 
     <script src="/js/require.js" data-main="p02_assetDemo"></script>
